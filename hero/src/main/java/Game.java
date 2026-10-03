@@ -35,15 +35,19 @@ public class Game {
         this.screen.refresh();
     }
 
+    private void moveHero(Position position) {
+        hero.setPosition(position);
+    }
+
     private void processKey(KeyStroke key) {
 
         System.out.println(key);
 
         switch (key.getKeyType()){
-            case ArrowUp -> hero.moveUp();
-            case ArrowDown -> hero.moveDown();
-            case ArrowLeft -> hero.moveLeft();
-            case ArrowRight -> hero.moveRight();
+            case ArrowUp -> moveHero(hero.moveUp());
+            case ArrowDown -> moveHero(hero.moveDown());
+            case ArrowLeft -> moveHero(hero.moveLeft());
+            case ArrowRight -> moveHero(hero.moveRight());
             default -> {}
         }
     }
