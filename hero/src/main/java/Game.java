@@ -50,6 +50,10 @@ public class Game {
                 }
                 if (key.getKeyType() == KeyType.EOF) break;
                 processKey(key);
+                if (arena.verifyMonsterCollisions()){
+                    screen.close();
+                    break;
+                }
             }
         }
         catch (IOException e) {
