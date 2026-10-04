@@ -5,17 +5,13 @@ import com.googlecode.lanterna.graphics.TextGraphics;
 
 import java.awt.*;
 
-public class Wall {
+public class Wall extends Element {
     private Position position;
 
-    public Wall(int x, int y) {
-        this.position = new Position(x, y);
-    }
+    public Wall(int x, int y) { super(x,y); }
 
-    Position getPosition() { return position; }
-    void setPosition(Position position) { this.position = position;}
-
-    void draw(TextGraphics graphics) {
+    @Override
+    public void draw(TextGraphics graphics) {
         graphics.setForegroundColor(TextColor.Factory.fromString("#582f0e"));
         graphics.enableModifiers(SGR.BOLD);
         graphics.putString(new TerminalPosition(position.getX(), position.getY()), "#");
