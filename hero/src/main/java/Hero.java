@@ -25,7 +25,7 @@ public class Hero {
         return new Position(position.getX() - speed, position.getY());
     }
 
-        public Position  moveRight() {
+    public Position  moveRight() {
         return new Position(position.getX() + speed, position.getY());
     }
 
