@@ -5,7 +5,6 @@ import com.googlecode.lanterna.graphics.TextGraphics;
 
 public class Hero extends Element {
 
-    private Position position;
     private int speed = 1;
 
     Hero(int x, int y){ super(x,y); }
