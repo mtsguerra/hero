@@ -18,6 +18,8 @@ public class Arena {
     private List<Wall> walls;
     private boolean[][] wallGrid;
     private List<Coin> coins;
+    private Door door;
+    private boolean levelCompleted;
     private List<Monster> monsters;
 
     /**
@@ -33,6 +35,7 @@ public class Arena {
             this.walls = loader.getWalls();
             this.wallGrid = loader.getWallGrid();
             this.coins = loader.getCoins();
+            this.door = loader.getDoor();
             this.monsters = loader.getMonsters();
         } catch (Exception e) {
             throw new RuntimeException("Erro ao carregar o mapa: " + mapResourcePath, e);
@@ -57,22 +60,20 @@ public class Arena {
                 break;
             }
         }
+        if (coins.isEmpty() && door != null) {
+            door.setOpen(true);
+        }
     }
 
-    /**
-     * Retrieves the monster at a given position.
-     * Iterates through the list of monsters to check if any monster's position matches
-     * the given position. If a match is found, the monster is returned.
-     * @param position The position to check.
-     * @return The monster at the given position, or null if no monster is found.
-     */
-    private Monster getMonsterAt(Position position) {
-        for (Monster monster : monsters) {
-            if (monster.getPosition().equals(position)) {
-                return monster;
-            }
+    private void verifyDoorCollision() {
+        if (door != null && door.isOpen() &&
+            door.getPosition().equals(hero.getPosition())) {
+            this.levelCompleted = true;
         }
-        return null;
+    }
+
+    public boolean isLevelCompleted() {
+        return levelCompleted;
     }
 
     /**
@@ -169,6 +170,7 @@ public class Arena {
         if(canMoveElement(position)){
             hero.setPosition(position);
             retrieveCoins();
+            verifyDoorCollision();
             moveMonsters();
             verifyMonsterCollisions();
         }
@@ -203,6 +205,7 @@ public class Arena {
         graphics.fillRectangle(new TerminalPosition(0,0), new TerminalSize(width,height), ' ');
         // arena elements
         for (Wall wall : walls) wall.draw(graphics);
+        if (door != null) door.draw(graphics);
         for (Coin coin : coins) coin.draw(graphics);
         for (Monster monster : monsters) monster.draw(graphics);
         hero.draw(graphics);
@@ -212,9 +215,9 @@ public class Arena {
         graphics.enableModifiers(SGR.BOLD);
 
         String hpText = " HP: " + hero.getHealth() + " ";
-        String coinText = " Coins left: " + coins.size() + " ";
+        String coinText = coins.isEmpty() ? " Door open (D)! " : " Coins: " + coins.size() + " ";
         graphics.putString(new TerminalPosition(2, 0), hpText);
-        graphics.putString(new TerminalPosition(width - coinText.length() - 2, 0), coinText);
+        graphics.putString(new TerminalPosition(Math.max(2, width - coinText.length() - 2), 0), coinText);
         graphics.clearModifiers();
 
         //end game messages

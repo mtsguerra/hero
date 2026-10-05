@@ -15,6 +15,7 @@ public class ArenaLoader {
     private final List<Wall> walls = new ArrayList<>();
     private final boolean[][] wallGrid;
     private final List<Coin> coins = new ArrayList<>();
+    private Door door;
     private final List<Monster> monsters = new ArrayList<>();
     private Hero hero;
 
@@ -77,6 +78,7 @@ public class ArenaLoader {
                         wallGrid[x][y] = true;
                     }
                     case 'O' -> coins.add(new Coin(x, y));
+                    case 'D' -> this.door = new Door(x, y);
                     case 'R' -> monsters.add(new RandomMonster(x, y));
                     case 'P' -> monsters.add(new PatrolMonster(x, y));
                     case 'T' -> monsters.add(new TrackingMonster(x, y, hero));
@@ -106,5 +108,8 @@ public class ArenaLoader {
     }
     public List<Monster> getMonsters() {
         return monsters;
+    }
+    public Door getDoor() {
+        return door;
     }
 }
