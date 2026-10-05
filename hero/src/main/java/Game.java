@@ -21,6 +21,7 @@ public class Game {
     private final List<String> levelFiles = List.of("levels/level1.txt", "levels/level2.txt");
     private int currentLevelIndex = 0;
     private boolean gameWon = false;
+    private int heroHealth = 100;
 
     //scoring fields
     private int accumulatedScore = 0;
@@ -49,13 +50,14 @@ public class Game {
     }
 
     private void loadCurrentLevel() {
-        this.arena = new Arena(levelFiles.get(currentLevelIndex));
+        this.arena = new Arena(levelFiles.get(currentLevelIndex), this.heroHealth);
         this.levelStartTimeMs = System.currentTimeMillis();
     }
 
     private void restartGame() {
         this.currentLevelIndex = 0;
         this.accumulatedScore = 0;
+        this.heroHealth = 100;
         this.gameWon = false;
         loadCurrentLevel();
     }
@@ -82,9 +84,10 @@ public class Game {
         accumulatedScore += (arena.getCoinsCollected() * 100)
                 + (arena.getMonstersKilled() * 150)
                 + getCurrentTimeBonus()
-                + 500                             // Fixed level pass bonus
-                + (arena.getHero().getHealth() * 5); // Remaining HP bonus
+                + 500
+                + (arena.getHero().getHealth() * 5);
 
+        heroHealth = Math.min(arena.getHero().getHealth() + 10, 100);
         currentLevelIndex++;
         if (currentLevelIndex < levelFiles.size()) {
             loadCurrentLevel();

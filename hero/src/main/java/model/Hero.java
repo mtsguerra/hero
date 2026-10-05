@@ -22,29 +22,27 @@ public class Hero extends Element {
     public Position moveUp() {
         return new Position(position.getX(), position.getY() - speed);
     }
-
     public Position moveDown() {
         return new Position(position.getX(), position.getY() + speed);
     }
-
     public Position moveLeft() {
         return new Position(position.getX() - speed, position.getY());
     }
-
     public Position  moveRight() {
         return new Position(position.getX() + speed, position.getY());
     }
-
     public int getHealth(){
         return health;
     }
-
     public void decreaseHealth(int damage){
         this.health = Math.max(0, this.health - damage);
     }
-
     public boolean isDead(){
         return health <= 0;
+    }
+
+    public void setHealth(int health) {
+        this.health = health;
     }
 
     /**

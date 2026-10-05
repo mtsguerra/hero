@@ -30,11 +30,16 @@ public class Arena {
      * @param mapResourcePath The path to the map resource file.
      */
     public Arena(String mapResourcePath) {
+        this(mapResourcePath, 100);
+    }
+
+    public Arena(String mapResourcePath, int initialHeroHealth) {
         try {
             ArenaLoader loader = new ArenaLoader(mapResourcePath);
             this.width = loader.getWidth();
             this.height = loader.getHeight();
             this.hero = loader.getHero();
+            this.hero.setHealth(initialHeroHealth); // Define a vida com o bónus
             this.walls = loader.getWalls();
             this.wallGrid = loader.getWallGrid();
             this.coins = loader.getCoins();
