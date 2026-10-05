@@ -1,8 +1,11 @@
+package arena;
+
 import com.googlecode.lanterna.TerminalPosition;
 import com.googlecode.lanterna.TerminalSize;
 import com.googlecode.lanterna.TextColor;
 import com.googlecode.lanterna.graphics.TextGraphics;
 import com.googlecode.lanterna.input.KeyStroke;
+import model.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -135,7 +138,7 @@ public class Arena {
     }
 
 
-    void processKey(KeyStroke key){
+    public void processKey(KeyStroke key){
         System.out.println(key);
 
         switch (key.getKeyType()){

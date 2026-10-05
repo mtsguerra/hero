@@ -1,3 +1,5 @@
+package model;
+
 import com.googlecode.lanterna.SGR;
 import com.googlecode.lanterna.TerminalPosition;
 import com.googlecode.lanterna.TextColor;
@@ -7,7 +9,7 @@ public class Hero extends Element {
 
     private int speed = 1;
 
-    Hero(int x, int y){ super(x,y); }
+    public Hero(int x, int y){ super(x,y); }
 
     public Position moveUp() {
         return new Position(position.getX(), position.getY() - speed);

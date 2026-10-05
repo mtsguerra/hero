@@ -1,3 +1,5 @@
+package model;
+
 import com.googlecode.lanterna.graphics.TextGraphics;
 
 public abstract class Element {
