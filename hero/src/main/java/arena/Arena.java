@@ -93,12 +93,14 @@ public class Arena {
     private List<Monster> createMonsters() {
         Random random = new Random();
         List<Monster> monsters = new ArrayList<>();
+
         while (monsters.size() < 3) {
             int x = random.nextInt(width -2) + 1;
             int y = random.nextInt(height - 2) + 1;
             Position possiblePos = new Position(x,y);
 
             if (possiblePos.equals(hero.getPosition())) continue;
+
             boolean placeTaken = false;
             for (Monster monster : monsters){
                 if (monster.getPosition().equals(possiblePos)){
@@ -107,7 +109,18 @@ public class Arena {
                 }
             }
             if (placeTaken) continue;
-            monsters.add(new Monster(x, y));
+
+            if (monsters.isEmpty()){
+                monsters.add(new TrackingMonster(x, y, hero));
+                continue;
+            }
+            else if (monsters.size() == 1){
+                monsters.add(new PatrolMonster(x, y));
+                continue;
+            }
+            else {
+                monsters.add(new RandomMonster(x, y));
+            }
         }
         return monsters;
     }
@@ -194,18 +207,30 @@ public class Arena {
 
     /**
      * Moves the monsters in the arena.
-     * Iterates through the list of monsters and attempts to move each
-     * monster to a random adjacent position. If the monster cannot move to
-     * the new position, it remains in its current position.
+     * Handles deterministic bouncing for patrol monsters and random attempts for others.
      */
-    public void moveMonsters(){
-        for (Monster monster : monsters){
-            int tries = 0;
-            while (tries++<11){
-                Position newPosition = monster.move();
-                if (canMoveElement(newPosition)&& !newPosition.equals(hero.getPosition())) {
-                    monster.setPosition(newPosition);
-                    break;
+    public void moveMonsters() {
+        for (Monster monster : monsters) {
+            if (monster instanceof PatrolMonster patrolMonster) {
+                Position next = patrolMonster.move();
+                if (canMoveElement(next)) {
+                    patrolMonster.setPosition(next);
+                } else {
+                    // Wall hit: invert direction and take a step back
+                    patrolMonster.reverseDirection();
+                    Position bounce = patrolMonster.move();
+                    if (canMoveElement(bounce)) {
+                        patrolMonster.setPosition(bounce);
+                    }
+                }
+            } else {
+                int tries = 0;
+                while (tries++ < 11) {
+                    Position newPosition = monster.move();
+                    if (canMoveElement(newPosition)) {
+                        monster.setPosition(newPosition);
+                        break;
+                    }
                 }
             }
         }

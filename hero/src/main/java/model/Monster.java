@@ -7,27 +7,13 @@ import com.googlecode.lanterna.graphics.TextGraphics;
 
 import java.util.Random;
 
-public class Monster extends Element {
+public abstract class Monster extends Element {
 
-    /**
-     * Initializes a monster at the specified position.
-     * @param x The x-coordinate of the monster.
-     * @param y The y-coordinate of the monster.
-     */
     public Monster(int x, int y) {
         super(x,y);
     }
 
-    /**
-     * Moves the monster in a random direction.
-     * @return The new position of the monster.
-     */
-    public Position move() {
-        Random random = new Random();
-        int x = random.nextInt(3) - 1;
-        int y = random.nextInt(3) - 1;
-        return new Position(getPosition().getX() + x, getPosition().getY() + y);
-    }
+    public abstract Position move();
 
     /**
      * Draws the monster.
