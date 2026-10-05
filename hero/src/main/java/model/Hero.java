@@ -10,7 +10,9 @@ public class Hero extends Element {
     private int speed = 1;
     private int health = 100;
 
-    public Hero(int x, int y){ super(x,y); }
+    public Hero(int x, int y){
+        super(x,y);
+    }
 
     public Position moveUp() {
         return new Position(position.getX(), position.getY() - speed);
@@ -28,9 +30,13 @@ public class Hero extends Element {
         return new Position(position.getX() + speed, position.getY());
     }
 
-    public int getHealth(){ return health; }
+    public int getHealth(){
+        return health;
+    }
 
-    public void decreaseHealth(int damage){ this.health = Math.max(0, this.health - damage); }
+    public void decreaseHealth(int damage){
+        this.health = Math.max(0, this.health - damage);
+    }
 
     public boolean isDead(){
         return health <= 0;

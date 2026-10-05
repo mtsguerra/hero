@@ -7,7 +7,9 @@ import com.googlecode.lanterna.graphics.TextGraphics;
 
 public class Coin extends Element {
 
-    public Coin(int x, int y){ super(x,y); }
+    public Coin(int x, int y){
+        super(x,y);
+    }
 
     @Override
     public void draw(TextGraphics graphics){

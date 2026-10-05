@@ -9,7 +9,9 @@ import java.util.Random;
 
 public class Monster extends Element {
 
-    public Monster(int x, int y) { super(x,y); }
+    public Monster(int x, int y) {
+        super(x,y);
+    }
 
     public Position move() {
         Random random = new Random();
