@@ -22,6 +22,11 @@ public class Arena {
     private List<Coin> coins;
     private List<Monster> monsters;
 
+    /**
+     * Initializes an arena with the specified width and height.
+     * @param width The width of the arena.
+     * @param height The height of the arena.
+     */
     public Arena(int width, int height){
         this.width = width;
         this.height = height;
@@ -31,6 +36,10 @@ public class Arena {
         this.monsters = createMonsters();
     }
 
+    /**
+     * Creates the walls for the arena, using a grid-based approach.
+     * @return A list of walls.
+     */
     private List<Wall> createWalls() {
         this.wallGrid = new boolean[width][height];
         List<Wall> walls = new ArrayList<>();
@@ -52,6 +61,10 @@ public class Arena {
         return walls;
     }
 
+    /**
+     * Creates the coins for the arena, using a random placement approach.
+     * @return A list of coins.
+     */
     private List<Coin> createCoins() {
         Random random = new Random();
         ArrayList<Coin> coins = new ArrayList<>();
@@ -73,6 +86,10 @@ public class Arena {
         return coins;
     }
 
+    /**
+     * Creates the monsters for the arena, using a random placement approach.
+     * @return A list of monsters.
+     */
     private List<Monster> createMonsters() {
         Random random = new Random();
         List<Monster> monsters = new ArrayList<>();
@@ -95,6 +112,9 @@ public class Arena {
         return monsters;
     }
 
+    /**
+     * Removes a coin from the arena if it is at the same position as the hero.
+     */
     private void retrieveCoins(){
         for (int i=0; i<coins.size(); i++){
             if (coins.get(i).getPosition().equals(hero.getPosition())){
@@ -104,6 +124,13 @@ public class Arena {
         }
     }
 
+    /**
+     * Retrieves the monster at a given position.
+     * Iterates through the list of monsters to check if any monster's position matches
+     * the given position. If a match is found, the monster is returned.
+     * @param position The position to check.
+     * @return The monster at the given position, or null if no monster is found.
+     */
     private Monster getMonsterAt(Position position) {
         for (Monster monster : monsters) {
             if (monster.getPosition().equals(position)) {
@@ -113,6 +140,13 @@ public class Arena {
         return null;
     }
 
+    /**
+     * Verifies if the hero collides with any monsters in the arena.
+     * Iterates through the list of monsters to check if any monster's position matches
+     * the hero's current position. If a match is found, the hero's health is decreased
+     * by 10, and the hero is moved to a random adjacent position not occupied
+     * by a monster or a wall.
+     */
     public void verifyMonsterCollisions(){
         for (Monster monster : monsters){
             if (monster.getPosition().equals(hero.getPosition())){
@@ -143,6 +177,12 @@ public class Arena {
         return hero.isDead();
     }
 
+    /**
+     * Checks if an element can move to a given position.
+     * Checks if the position is within the arena boundaries and if it is not occupied by a wall.
+     * @param position The position to check.
+     * @return True if the element can move to the position, false otherwise.
+     */
     private boolean canMoveElement(Position position){
         int x = position.getX();
         int y = position.getY();
@@ -152,12 +192,18 @@ public class Arena {
         return !wallGrid[x][y];
     }
 
+    /**
+     * Moves the monsters in the arena.
+     * Iterates through the list of monsters and attempts to move each
+     * monster to a random adjacent position. If the monster cannot move to
+     * the new position, it remains in its current position.
+     */
     public void moveMonsters(){
         for (Monster monster : monsters){
             int tries = 0;
             while (tries++<11){
                 Position newPosition = monster.move();
-                if (canMoveElement(newPosition)) {
+                if (canMoveElement(newPosition)&& !newPosition.equals(hero.getPosition())) {
                     monster.setPosition(newPosition);
                     break;
                 }
@@ -165,6 +211,13 @@ public class Arena {
         }
     }
 
+    /**
+     * Moves the hero in the arena.
+     * Checks if the hero can move to the given position. If the hero can move,
+     * updates the hero's position, retrieves any coins at the new position,
+     * moves the monsters, and verifies if the hero collides with any monsters.
+     * @param position The position to move the hero to.
+     */
     public void moveHero(Position position){
         if(canMoveElement(position)){
             hero.setPosition(position);
@@ -174,7 +227,11 @@ public class Arena {
         }
     }
 
-
+    /**
+     * Processes a keystroke and moves the hero accordingly.
+     * Checks the type of the keystroke and moves the hero in the corresponding direction.
+     * @param key The keystroke to the process.
+     */
     public void processKey(KeyStroke key){
         System.out.println(key);
 
@@ -187,6 +244,12 @@ public class Arena {
         }
     }
 
+    /**
+     * Draws the arena elements on the terminal.
+     * Fills the background color, draws the walls, coins, monsters, and hero.
+     * Draws the health points and coins left on the top wall.
+     * @param graphics The text graphics object to draw on.
+     */
     public void draw(TextGraphics graphics){
         // background
         graphics.setBackgroundColor(TextColor.Factory.fromString("#96e072"));
@@ -213,6 +276,15 @@ public class Arena {
         }
     }
 
+    /**
+     * Draws a centered banner on the terminal.
+     * Sets the background color, foreground color, and bold modifier for the banner.
+     * Draws the message at the specified position and clears the modifiers.
+     * @param graphics The text graphics object to draw on.
+     * @param message The message to display in the banner.
+     * @param bgColor The background color of the banner.
+     * @param fgColor The foreground color of the banner.
+     */
     private void drawCenterBanner(TextGraphics graphics, String message, String bgColor, String fgColor) {
         int startX = Math.max(1, (width - message.length()) / 2);
         int startY = height / 2;

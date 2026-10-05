@@ -7,10 +7,19 @@ import com.googlecode.lanterna.graphics.TextGraphics;
 
 public class Coin extends Element {
 
+    /**
+     * Initializes a coin at the specified position.
+     * @param x The x-coordinate of the coin.
+     * @param y The y-coordinate of the coin.
+     */
     public Coin(int x, int y){
         super(x,y);
     }
 
+    /**
+     * Draws the coin.
+     * @param graphics The text graphics object to draw on.
+     */
     @Override
     public void draw(TextGraphics graphics){
         graphics.setForegroundColor(TextColor.Factory.fromString("#ffff3f"));

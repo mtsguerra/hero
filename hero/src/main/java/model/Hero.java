@@ -10,6 +10,11 @@ public class Hero extends Element {
     private int speed = 1;
     private int health = 100;
 
+    /**
+     * Initializes a hero at the specified position.
+     * @param x The x-coordinate of the hero.
+     * @param y The y-coordinate of the hero.
+     */
     public Hero(int x, int y){
         super(x,y);
     }
@@ -42,7 +47,10 @@ public class Hero extends Element {
         return health <= 0;
     }
 
-
+    /**
+     * Draws the hero.
+     * @param graphics The text graphics object to draw on.
+     */
     @Override
     public void draw(TextGraphics graphics){
         graphics.setForegroundColor(TextColor.Factory.fromString("#04471c"));

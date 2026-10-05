@@ -5,6 +5,11 @@ public class Position {
     private int x;
     private int y;
 
+    /**
+     * Initializes a position with the specified x and y coordinates.
+     * @param x The x-coordinate of the position.
+     * @param y The y-coordinate of the position.
+     */
     public Position(int x, int y){
         this.x = x;
         this.y = y;
@@ -23,6 +28,11 @@ public class Position {
         this.y = y;
     }
 
+    /**
+     * Checks if this position is equal to another object.
+     * @param o The object to compare with.
+     * @return True if the positions are equal, false otherwise.
+     */
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

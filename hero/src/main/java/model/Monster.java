@@ -9,10 +9,19 @@ import java.util.Random;
 
 public class Monster extends Element {
 
+    /**
+     * Initializes a monster at the specified position.
+     * @param x The x-coordinate of the monster.
+     * @param y The y-coordinate of the monster.
+     */
     public Monster(int x, int y) {
         super(x,y);
     }
 
+    /**
+     * Moves the monster in a random direction.
+     * @return The new position of the monster.
+     */
     public Position move() {
         Random random = new Random();
         int x = random.nextInt(3) - 1;
@@ -20,6 +29,10 @@ public class Monster extends Element {
         return new Position(getPosition().getX() + x, getPosition().getY() + y);
     }
 
+    /**
+     * Draws the monster.
+     * @param graphics The text graphics object to draw on.
+     */
     @Override
     public void draw(TextGraphics graphics) {
         graphics.setForegroundColor(TextColor.Factory.fromString("#000000"));

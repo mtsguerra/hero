@@ -14,6 +14,9 @@ public class Game {
     private Screen screen;
     private Arena arena;
 
+    /**
+     * Initializes the game.
+     */
     public Game() {
         try {
             arena = new Arena(40, 20);
@@ -31,16 +34,27 @@ public class Game {
         }
     }
 
+    /**
+     * Draws the game state.
+     * @throws IOException If an I/O error occurs.
+     */
     private void draw () throws IOException{
         this.screen.clear();
         arena.draw(screen.newTextGraphics());
         this.screen.refresh();
     }
 
+    /**
+     * Processes a key input.
+     * @param key The key input to be processed.
+     */
     private void processKey(KeyStroke key) {
         arena.processKey(key);
     }
 
+    /**
+     * Runs the game.
+     */
     public void run() {
         try {
             while (true) {

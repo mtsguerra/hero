@@ -9,10 +9,19 @@ import java.awt.*;
 
 public class Wall extends Element {
 
+    /**
+     * Initializes a wall at the specified position.
+     * @param x The x-coordinate of the wall.
+     * @param y The y-coordinate of the wall.
+     */
     public Wall(int x, int y) {
         super(x,y);
     }
 
+    /**
+     * Draws the wall.
+     * @param graphics The text graphics object to draw on.
+     */
     @Override
     public void draw(TextGraphics graphics) {
         graphics.setForegroundColor(TextColor.Factory.fromString("#582f0e"));
