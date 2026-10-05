@@ -1,6 +1,10 @@
 import arena.Arena;
 
+import com.googlecode.lanterna.SGR;
+import com.googlecode.lanterna.TerminalPosition;
 import com.googlecode.lanterna.TerminalSize;
+import com.googlecode.lanterna.TextColor;
+import com.googlecode.lanterna.graphics.TextGraphics;
 import com.googlecode.lanterna.input.KeyStroke;
 import com.googlecode.lanterna.input.KeyType;
 import com.googlecode.lanterna.screen.Screen;
@@ -17,6 +21,12 @@ public class Game {
     private final List<String> levelFiles = List.of("levels/level1.txt", "levels/level2.txt");
     private int currentLevelIndex = 0;
     private boolean gameWon = false;
+
+    //scoring fields
+    private int accumulatedScore = 0;
+    private long levelStartTimeMs;
+    private static final int INITIAL_TIME_BONUS = 1000;
+    private static final int TIME_PENALTY_PER_SEC = 10;
 
     /**
      * Initializes the game.
@@ -40,9 +50,41 @@ public class Game {
 
     private void loadCurrentLevel() {
         this.arena = new Arena(levelFiles.get(currentLevelIndex));
+        this.levelStartTimeMs = System.currentTimeMillis();
+    }
+
+    private void restartGame() {
+        this.currentLevelIndex = 0;
+        this.accumulatedScore = 0;
+        this.gameWon = false;
+        loadCurrentLevel();
+    }
+
+    private int getCurrentTimeBonus() {
+        if (gameWon || arena.verifyGameOver()) {
+            return 0;
+        }
+        long elapsedSeconds = (System.currentTimeMillis() - levelStartTimeMs) / 1000;
+        return (int) Math.max(0, INITIAL_TIME_BONUS - (elapsedSeconds * TIME_PENALTY_PER_SEC));
+    }
+    private int getTotalCurrentScore() {
+        if (gameWon) {
+            return accumulatedScore;
+        }
+        return accumulatedScore
+                + (arena.getCoinsCollected() * 100)
+                + (arena.getMonstersKilled() * 150)
+                + getCurrentTimeBonus();
     }
 
     private void nextLevel() {
+        // Bank the current level's score plus bonuses into the persistent bank
+        accumulatedScore += (arena.getCoinsCollected() * 100)
+                + (arena.getMonstersKilled() * 150)
+                + getCurrentTimeBonus()
+                + 500                             // Fixed level pass bonus
+                + (arena.getHero().getHealth() * 5); // Remaining HP bonus
+
         currentLevelIndex++;
         if (currentLevelIndex < levelFiles.size()) {
             loadCurrentLevel();
@@ -55,18 +97,19 @@ public class Game {
      * Draws the game state.
      * @throws IOException If an I/O error occurs.
      */
-    private void draw () throws IOException{
+    private void draw() throws IOException {
         this.screen.clear();
-        arena.draw(screen.newTextGraphics());
+        arena.draw(screen.newTextGraphics(), getTotalCurrentScore(), getCurrentTimeBonus());
 
-        if (gameWon){
-            var g = screen.newTextGraphics();
-            g.setBackgroundColor(com.googlecode.lanterna.TextColor.Factory.fromString("#008800"));
-            g.setForegroundColor(com.googlecode.lanterna.TextColor.Factory.fromString("#FFFFFF"));
-            g.enableModifiers(com.googlecode.lanterna.SGR.BOLD);
-            String winMsg = "YOU WON THE GAME! Press Q to quit";
+        if (gameWon) {
+            TextGraphics g = screen.newTextGraphics();
+            g.setBackgroundColor(TextColor.Factory.fromString("#008800"));
+            g.setForegroundColor(TextColor.Factory.fromString("#FFFFFF"));
+            g.enableModifiers(SGR.BOLD);
+
+            String winMsg = "VICTORY! Final Score: " + accumulatedScore + " (R: Restart | Q: Quit)";
             int startX = Math.max(1, (arena.getWidth() - winMsg.length()) / 2);
-            g.putString(new com.googlecode.lanterna.TerminalPosition(startX, arena.getHeight() / 2), winMsg);
+            g.putString(new TerminalPosition(startX, arena.getHeight() / 2), winMsg);
             g.clearModifiers();
         }
 
@@ -96,6 +139,9 @@ public class Game {
                 if (key.getKeyType() == KeyType.EOF) break;
 
                 if (arena.verifyGameOver() || gameWon) {
+                    if (key.getKeyType() == KeyType.Character && (key.getCharacter() == 'r' || key.getCharacter() == 'R')) {
+                        restartGame();
+                    }
                     continue;
                 }
 

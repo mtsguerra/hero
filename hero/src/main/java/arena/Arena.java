@@ -12,15 +12,18 @@ import java.util.List;
 
 public class Arena {
 
-    private int width;
-    private int height;
-    private Hero hero;
-    private List<Wall> walls;
-    private boolean[][] wallGrid;
-    private List<Coin> coins;
-    private Door door;
+    private final int width;
+    private final int height;
+    private final Hero hero;
+    private final List<Wall> walls;
+    private final boolean[][] wallGrid;
+    private final List<Coin> coins;
+    private final Door door;
+    private final List<Monster> monsters;
+
     private boolean levelCompleted;
-    private List<Monster> monsters;
+    private int coinsCollected = 0;
+    private int monstersKilled = 0;
 
     /**
      * Initializes an arena from a map resource file.
@@ -38,16 +41,30 @@ public class Arena {
             this.door = loader.getDoor();
             this.monsters = loader.getMonsters();
         } catch (Exception e) {
-            throw new RuntimeException("Erro ao carregar o mapa: " + mapResourcePath, e);
+            throw new RuntimeException("Error loading map: " + mapResourcePath, e);
         }
     }
 
     public int getWidth() {
         return width;
     }
-
     public int getHeight() {
         return height;
+    }
+    public Hero getHero() {
+        return hero;
+    }
+    public boolean isLevelCompleted() {
+        return levelCompleted;
+    }
+    public int getCoinsCollected() {
+        return coinsCollected;
+    }
+    public int getMonstersKilled() {
+        return monstersKilled;
+    }
+    public void incrementMonstersKilled() {
+        this.monstersKilled++;
     }
 
     /**
@@ -57,23 +74,20 @@ public class Arena {
         for (int i=0; i<coins.size(); i++){
             if (coins.get(i).getPosition().equals(hero.getPosition())){
                 coins.remove(i);
+                coinsCollected++;
                 break;
             }
         }
-        if (coins.isEmpty() && door != null) {
+        if (coinsCollected >= 5 && door != null) {
             door.setOpen(true);
         }
     }
 
     private void verifyDoorCollision() {
         if (door != null && door.isOpen() &&
-            door.getPosition().equals(hero.getPosition())) {
+                door.getPosition().equals(hero.getPosition())) {
             this.levelCompleted = true;
         }
-    }
-
-    public boolean isLevelCompleted() {
-        return levelCompleted;
     }
 
     /**
@@ -199,7 +213,7 @@ public class Arena {
      * Draws the health points and coins left on the top wall.
      * @param graphics The text graphics object to draw on.
      */
-    public void draw(TextGraphics graphics){
+    public void draw(TextGraphics graphics, int totalScore, int timeBonus){
         // background
         graphics.setBackgroundColor(TextColor.Factory.fromString("#96e072"));
         graphics.fillRectangle(new TerminalPosition(0,0), new TerminalSize(width,height), ' ');
@@ -214,15 +228,18 @@ public class Arena {
         graphics.setForegroundColor(TextColor.Factory.fromString("#FFFFFF"));
         graphics.enableModifiers(SGR.BOLD);
 
-        String hpText = " HP: " + hero.getHealth() + " ";
-        String coinText = coins.isEmpty() ? " Door open (D)! " : " Coins: " + coins.size() + " ";
-        graphics.putString(new TerminalPosition(2, 0), hpText);
-        graphics.putString(new TerminalPosition(Math.max(2, width - coinText.length() - 2), 0), coinText);
+        String hpText = " HP:" + hero.getHealth() + " ";
+        String coinText = door != null && door.isOpen() ? " [DOOR OPEN] " : " Coins:" + coinsCollected + "/5 ";
+        String scoreText = " Score:" + totalScore + " (TimeBonus: " + timeBonus + ") ";
+
+        graphics.putString(new TerminalPosition(1, 0), hpText);
+        graphics.putString(new TerminalPosition(hpText.length() + 2, 0), coinText);
+        graphics.putString(new TerminalPosition(Math.max(1, width - scoreText.length() - 1), 0), scoreText);
         graphics.clearModifiers();
 
         //end game messages
         if (verifyGameOver()) {
-            drawCenterBanner(graphics, "GAME OVER! Press Q to quit", "#AA0000", "#FFFFFF");
+            drawCenterBanner(graphics, "GAME OVER! Score: " + totalScore + " (R: Restart | Q: Quit)", "#AA0000", "#FFFFFF");
         }
     }
 
