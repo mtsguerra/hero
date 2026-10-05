@@ -8,9 +8,7 @@ import com.googlecode.lanterna.graphics.TextGraphics;
 import com.googlecode.lanterna.input.KeyStroke;
 import model.*;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 public class Arena {
 
@@ -23,106 +21,30 @@ public class Arena {
     private List<Monster> monsters;
 
     /**
-     * Initializes an arena with the specified width and height.
-     * @param width The width of the arena.
-     * @param height The height of the arena.
+     * Initializes an arena from a map resource file.
+     * @param mapResourcePath The path to the map resource file.
      */
-    public Arena(int width, int height){
-        this.width = width;
-        this.height = height;
-        this.hero = new Hero(10,10);
-        this.walls = createWalls();
-        this.coins = createCoins();
-        this.monsters = createMonsters();
+    public Arena(String mapResourcePath) {
+        try {
+            ArenaLoader loader = new ArenaLoader(mapResourcePath);
+            this.width = loader.getWidth();
+            this.height = loader.getHeight();
+            this.hero = loader.getHero();
+            this.walls = loader.getWalls();
+            this.wallGrid = loader.getWallGrid();
+            this.coins = loader.getCoins();
+            this.monsters = loader.getMonsters();
+        } catch (Exception e) {
+            throw new RuntimeException("Erro ao carregar o mapa: " + mapResourcePath, e);
+        }
     }
 
-    /**
-     * Creates the walls for the arena, using a grid-based approach.
-     * @return A list of walls.
-     */
-    private List<Wall> createWalls() {
-        this.wallGrid = new boolean[width][height];
-        List<Wall> walls = new ArrayList<>();
-
-        for (int c = 0; c < width; c++) {
-            walls.add(new Wall(c, 0));
-            wallGrid[c][0] = true;
-            walls.add(new Wall(c, height - 1));
-            wallGrid[c][height - 1] = true;
-        }
-
-        for (int r = 1; r < height - 1; r++) {
-            walls.add(new Wall(0, r));
-            wallGrid[0][r] = true;
-            walls.add(new Wall(width - 1, r));
-            wallGrid[width - 1][r] = true;
-        }
-
-        return walls;
+    public int getWidth() {
+        return width;
     }
 
-    /**
-     * Creates the coins for the arena, using a random placement approach.
-     * @return A list of coins.
-     */
-    private List<Coin> createCoins() {
-        Random random = new Random();
-        ArrayList<Coin> coins = new ArrayList<>();
-        while(coins.size() < 5){
-            int x = random.nextInt(width - 2) + 1;
-            int y = random.nextInt(height - 2) + 1;
-            Position placeTaken = new Position(x, y);
-            if (placeTaken.equals(hero.getPosition())) continue;
-            boolean alreadyExists = false;
-            for (Coin coin : coins){
-                if (coin.getPosition().equals(placeTaken)){
-                    alreadyExists = true;
-                    break;
-                }
-            }
-            if (alreadyExists) continue;
-            coins.add(new Coin(x, y));
-        }
-        return coins;
-    }
-
-    /**
-     * Creates the monsters for the arena, using a random placement approach.
-     * @return A list of monsters.
-     */
-    private List<Monster> createMonsters() {
-        Random random = new Random();
-        List<Monster> monsters = new ArrayList<>();
-
-        while (monsters.size() < 3) {
-            int x = random.nextInt(width -2) + 1;
-            int y = random.nextInt(height - 2) + 1;
-            Position possiblePos = new Position(x,y);
-
-            if (possiblePos.equals(hero.getPosition())) continue;
-
-            boolean placeTaken = false;
-            for (Monster monster : monsters){
-                if (monster.getPosition().equals(possiblePos)){
-                    placeTaken = true;
-                    break;
-                }
-            }
-            if (placeTaken) continue;
-
-            if (monsters.isEmpty()){
-                monsters.add(new TrackingMonster(x, y, hero));
-                continue;
-            }
-            else if (monsters.size() == 1){
-                monsters.add(new PatrolMonster(x, y));
-                continue;
-            }
-            else {
-                monsters.add(new RandomMonster(x, y));
-            }
-        }
-        return monsters;
+    public int getHeight() {
+        return height;
     }
 
     /**
@@ -319,7 +241,5 @@ public class Arena {
         graphics.putString(new TerminalPosition(startX, startY), message);
         graphics.clearModifiers();
     }
-
-
 
 }

@@ -19,8 +19,8 @@ public class Game {
      */
     public Game() {
         try {
-            arena = new Arena(40, 20);
-            TerminalSize terminalSize = new TerminalSize(40, 20);
+            arena = new Arena("levels/level1.txt");
+            TerminalSize terminalSize = new TerminalSize(arena.getWidth(), arena.getHeight());
             DefaultTerminalFactory terminalFactory = new DefaultTerminalFactory()
                     .setInitialTerminalSize(terminalSize);
             Terminal terminal = terminalFactory.createTerminal();
