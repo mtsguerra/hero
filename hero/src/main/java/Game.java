@@ -51,11 +51,12 @@ public class Game {
                     break;
                 }
                 if (key.getKeyType() == KeyType.EOF) break;
-                processKey(key);
-                if (arena.verifyMonsterCollisions()){
-                    screen.close();
-                    break;
+
+                if (arena.verifyGameOver()) {
+                    continue;
                 }
+
+                processKey(key);
             }
         }
         catch (IOException e) {

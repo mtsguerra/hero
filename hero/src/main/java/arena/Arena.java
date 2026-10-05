@@ -1,5 +1,6 @@
 package arena;
 
+import com.googlecode.lanterna.SGR;
 import com.googlecode.lanterna.TerminalPosition;
 import com.googlecode.lanterna.TerminalSize;
 import com.googlecode.lanterna.TextColor;
@@ -17,6 +18,7 @@ public class Arena {
     private int height;
     private Hero hero;
     private List<Wall> walls;
+    private boolean[][] wallGrid;
     private List<Coin> coins;
     private List<Monster> monsters;
 
@@ -30,16 +32,21 @@ public class Arena {
     }
 
     private List<Wall> createWalls() {
+        this.wallGrid = new boolean[width][height];
         List<Wall> walls = new ArrayList<>();
 
         for (int c = 0; c < width; c++) {
             walls.add(new Wall(c, 0));
+            wallGrid[c][0] = true;
             walls.add(new Wall(c, height - 1));
+            wallGrid[c][height - 1] = true;
         }
 
         for (int r = 1; r < height - 1; r++) {
             walls.add(new Wall(0, r));
+            wallGrid[0][r] = true;
             walls.add(new Wall(width - 1, r));
+            wallGrid[width - 1][r] = true;
         }
 
         return walls;
@@ -97,28 +104,58 @@ public class Arena {
         }
     }
 
-    public boolean verifyMonsterCollisions(){
-        for (Monster monster : monsters){
-            if (monster.getPosition().equals(hero.getPosition())){
-                System.out.println("You died!");
-                return true;
+    private Monster getMonsterAt(Position position) {
+        for (Monster monster : monsters) {
+            if (monster.getPosition().equals(position)) {
+                return monster;
             }
         }
-        return false;
+        return null;
+    }
+
+    public void verifyMonsterCollisions(){
+        for (Monster monster : monsters){
+            if (monster.getPosition().equals(hero.getPosition())){
+                System.out.println("Ouch!");
+                hero.decreaseHealth(10);
+
+                Position[] adjacentPositions = new Position[]{
+                        new Position(monster.getPosition().getX() + 1, monster.getPosition().getY()),
+                        new Position(monster.getPosition().getX() - 1, monster.getPosition().getY()),
+                        new Position(monster.getPosition().getX(), monster.getPosition().getY() + 1),
+                        new Position(monster.getPosition().getX(), monster.getPosition().getY() - 1)
+                };
+
+                for (Position adj : adjacentPositions) {
+                    if (canMoveElement(adj) && !adj.equals(hero.getPosition())) {
+                        monster.setPosition(adj);
+                        break;
+                    }
+                }
+
+                verifyGameOver();
+                return;
+            }
+        }
+    }
+
+    public boolean verifyGameOver(){
+        return hero.isDead();
     }
 
     private boolean canMoveElement(Position position){
-        if (position.getX() < 0 || position.getX() >= width ||
-            position.getY() < 0 || position.getY() >= height){return false;}
-        for (Wall wall : walls){
-            if (wall.getPosition().equals(position)) return false;
+        int x = position.getX();
+        int y = position.getY();
+        if (x < 0 || x >= width || y < 0 || y >= height){
+            return false;
         }
-        return true;
+        return !wallGrid[x][y];
     }
 
     public void moveMonsters(){
         for (Monster monster : monsters){
-            while (true){
+            int tries = 0;
+            while (tries++<11){
                 Position newPosition = monster.move();
                 if (canMoveElement(newPosition)) {
                     monster.setPosition(newPosition);
@@ -151,12 +188,39 @@ public class Arena {
     }
 
     public void draw(TextGraphics graphics){
+        // background
         graphics.setBackgroundColor(TextColor.Factory.fromString("#96e072"));
         graphics.fillRectangle(new TerminalPosition(0,0), new TerminalSize(width,height), ' ');
+        // arena elements
         for (Wall wall : walls) wall.draw(graphics);
         for (Coin coin : coins) coin.draw(graphics);
         for (Monster monster : monsters) monster.draw(graphics);
         hero.draw(graphics);
+        // hud on top wall
+        graphics.setBackgroundColor(TextColor.Factory.fromString("#333333"));
+        graphics.setForegroundColor(TextColor.Factory.fromString("#FFFFFF"));
+        graphics.enableModifiers(SGR.BOLD);
+
+        String hpText = " HP: " + hero.getHealth() + " ";
+        String coinText = " Coins left: " + coins.size() + " ";
+        graphics.putString(new TerminalPosition(2, 0), hpText);
+        graphics.putString(new TerminalPosition(width - coinText.length() - 2, 0), coinText);
+        graphics.clearModifiers();
+
+        //end game messages
+        if (verifyGameOver()) {
+            drawCenterBanner(graphics, "GAME OVER! Press Q to quit", "#AA0000", "#FFFFFF");
+        }
+    }
+
+    private void drawCenterBanner(TextGraphics graphics, String message, String bgColor, String fgColor) {
+        int startX = Math.max(1, (width - message.length()) / 2);
+        int startY = height / 2;
+        graphics.setBackgroundColor(TextColor.Factory.fromString(bgColor));
+        graphics.setForegroundColor(TextColor.Factory.fromString(fgColor));
+        graphics.enableModifiers(SGR.BOLD);
+        graphics.putString(new TerminalPosition(startX, startY), message);
+        graphics.clearModifiers();
     }
 
 
