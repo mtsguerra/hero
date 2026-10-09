@@ -1,6 +1,8 @@
 plugins {
     id 'java'
     id 'application'
+    id 'groovy' // Required for Spock
+    id 'info.solidsoft.pitest' version '1.15.0' // Mutation testing
 }
 
 application {
@@ -15,13 +17,25 @@ repositories {
 }
 
 dependencies {
+    implementation 'com.googlecode.lanterna:lanterna:3.1.1'
+
+    // JUnit 5 & Mockito
     testImplementation platform('org.junit:junit-bom:5.10.0')
     testImplementation 'org.junit.jupiter:junit-jupiter'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-    implementation group: 'com.googlecode.lanterna', name: 'lanterna', version: '3.1.1'
+    testImplementation 'org.mockito:mockito-core:5.8.0'
+    testImplementation 'org.mockito:mockito-junit-jupiter:5.8.0'
+
+    // Spock Framework (Groovy-based testing)
+    testImplementation 'org.spockframework:spock-core:2.4-M1-groovy-3.0'
+    testImplementation 'org.codehaus.groovy:groovy-all:3.0.21'
 }
 
 test {
-    useJUnitPlatform()
+    useJUnitPlatform() // Runs both JUnit 5 and Spock tests
 }
 
+pitest {
+    junit5PluginVersion = '1.0.0'
+    targetClasses = ['model.*', 'arena.*'] // Classes under mutation test
+}
